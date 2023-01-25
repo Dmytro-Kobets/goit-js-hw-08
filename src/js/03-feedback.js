@@ -6,27 +6,42 @@ const fbMessage = document.querySelector('#message');
 
 let data = {};
 
+function dataCheck(name) {
+  const getItem = localStorage.getItem(name);
+  if (getItem) {
+    return JSON.parse(getItem);
+  } else return {};
+}
+
 function dataSave(e) {
   data[e.target.name] = e.target.value;
   localStorage.setItem('feedback-form-state', JSON.stringify(data));
 }
 
 function dataSubmit(e) {
+  if (validateForm()) {
+    form.reset();
+    console.log(data);
+    data = {};
+    localStorage.removeItem('feedback-form-state');
+  }
   e.preventDefault();
-  form.reset();
-  console.log(JSON.parse(localStorage.getItem('feedback-form-state')));
-  localStorage.removeItem('feedback-form-state');
 }
 
-form.addEventListener('input', throttle(dataSave, 500));
+function validateForm() {
+  if (!data.email || !data.message) {
+    alert('Fill both fields!');
+    return false;
+  } else return true;
+}
+
 form.addEventListener('submit', dataSubmit);
+form.addEventListener('input', throttle(dataSave, 500));
 
 function preload() {
-  const preData = JSON.parse(localStorage.getItem('feedback-form-state'));
-  if (preData) {
-    fbEmail.value = preData.email || '';
-    fbMessage.value = preData.message || '';
-  }
+  data = dataCheck('feedback-form-state');
+  fbEmail.value = data.email || '';
+  fbMessage.value = data.message || '';
 }
 
 preload();
